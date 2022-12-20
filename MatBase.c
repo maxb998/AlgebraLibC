@@ -9,10 +9,8 @@ Mat blankInit(size_t rows, size_t cols)
     m.Rows = rows;
     m.Cols = cols;
 
-    m.memCols = cols + (4 - (cols % 4));
-
-    // allocate the memory(aligned so avx are happy)
-    m.Data = (double*)aligned_alloc(32, m.Rows * m.memCols * sizeof(double));
+    // allocate the memory
+    m.Data = (double*)malloc(m.Rows * m.Cols * sizeof(double));
 
     return m;
 }
@@ -22,7 +20,7 @@ Mat zeroes(size_t rows, size_t cols)
     Mat m = blankInit(rows, cols);
     
     // fill the array with zeros
-    memset(m.Data, (char)0U, m.Rows * m.memCols * sizeof(double));
+    memset(m.Data, (char)0U, m.Rows * m.Cols * sizeof(double));
     
     return m;
 }
@@ -35,13 +33,9 @@ Mat ones(size_t rows, size_t cols)
     for (size_t i = 0; i < m.Cols; i++)
         m.Data[i] = 1.0;
 
-    // set placeholders to 0
-    for (size_t i = m.Cols; i < m.memCols; i++)
-        m.Data[i] = 0.0;
-
     // copy memory of first row to all other rows
     for (size_t row = 1; row < m.Rows; row++)
-        memcpy(&m.Data[row * m.memCols], &m.Data[0], m.memCols*sizeof(double));
+        memcpy(&m.Data[row * m.Cols], &m.Data[0], m.Cols*sizeof(double));
     
     return m;
 }
@@ -50,7 +44,7 @@ Mat idMat(size_t size)
 {
     Mat m = zeroes(size, size);
     for (size_t i = 0; i < size; i++)
-        m.Data[i * m.memCols + i] = 1.0;
+        m.Data[i * m.Cols + i] = 1.0;
     
     return m;
 }
@@ -97,14 +91,14 @@ Mat loadMat(const char * csvPath)
         {
         case ',':
             letterNumber[numSize] = 0;  // terminate string
-            m.Data[row * m.memCols + col] = (double)atof(letterNumber);  // convert number and place it in the matrix
+            m.Data[row * m.Cols + col] = (double)atof(letterNumber);  // convert number and place it in the matrix
 
             col++; numSize=0;
             break;
         
         case '\n':
             letterNumber[numSize] = 0;  // terminate string
-            m.Data[row * m.memCols + col] = (double)atof(letterNumber);  // convert number and place it in the matrix
+            m.Data[row * m.Cols + col] = (double)atof(letterNumber);  // convert number and place it in the matrix
 
             row++; col=0; numSize=0;
             break;
@@ -118,7 +112,7 @@ Mat loadMat(const char * csvPath)
 
     // add last element
     letterNumber[numSize] = 0;  // terminate string
-    m.Data[row * m.memCols + col] = (double)atof(letterNumber);  // convert number and place it in the matrix
+    m.Data[row * m.Cols + col] = (double)atof(letterNumber);  // convert number and place it in the matrix
 
     free(letterNumber);
 
@@ -129,7 +123,7 @@ Mat cloneMat(Mat *m)
 {
     Mat cloned = blankInit(m->Rows, m->Cols);
 
-    memcpy(cloned.Data, m->Data, (m->Rows * m->memCols * sizeof(double)));
+    memcpy(cloned.Data, m->Data, (m->Rows * m->Cols * sizeof(double)));
 
     return cloned;
 }
@@ -139,7 +133,7 @@ double get(Mat *m, size_t row, size_t col)
     double d;
 
     if ((m->Rows > row) && (m->Cols > col))
-        d = m->Data[m->memCols * row + col];
+        d = m->Data[m->Cols * row + col];
     else
     {
         printf("Out of bounds");
@@ -152,7 +146,7 @@ double get(Mat *m, size_t row, size_t col)
 void set(Mat *m, size_t row, size_t col, double d)
 {
     if ((m->Rows > row) && (m->Cols > col))
-        m->Data[m->memCols * row + col] = d;
+        m->Data[m->Cols * row + col] = d;
     else
     {
         printf("Out of bounds");
@@ -171,21 +165,8 @@ void printMat(Mat *m)
     for (size_t row = 0; row < m->Rows; row++)
     {
         for (size_t col = 0; col < m->Cols-1; col++)
-            printf("%.2f, ", m->Data[row * m->memCols + col]);
-        printf("%.2f", m->Data[row * m->memCols + m->Cols-1]);
-        printf("\n");
-    }
-    printf("\n");
-}
-
-void printMatAVX(Mat *m)
-{
-    printf("\n");
-    for (size_t row = 0; row < m->Rows; row++)
-    {
-        for (size_t col = 0; col < m->memCols-1; col++)
-            printf("%.2f, ", m->Data[row * m->memCols + col]);
-        printf("%.2f", m->Data[row * m->memCols + m->memCols-1]);
+            printf("%.2f, ", m->Data[row * m->Cols + col]);
+        printf("%.2f", m->Data[row * m->Cols + m->Cols-1]);
         printf("\n");
     }
     printf("\n");
