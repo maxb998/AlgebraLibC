@@ -24,9 +24,9 @@ int main(int argc, char const *argv[])
     {
         printf("ERROR: Matrix B does not exist\n");
         exit(EXIT_FAILURE);
-    }
-    
+    } 
 
+    
     Mat a = loadMat(argv[1]);
     printMat(&a);
     double sum = sumElements(&a);

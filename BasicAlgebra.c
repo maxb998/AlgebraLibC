@@ -9,13 +9,13 @@ void addScalar(Mat *m, double scalar)
         for (size_t col = 0; col < m->Cols; col += 4)
         {
             // load data into AVX register
-            matValues = _mm256_load_pd(&m->Data[row * m->memCols + col]);
+            matValues = _mm256_loadu_pd(&m->Data[row * m->Cols + col]);
 
             // compute sum of 4 elements
             results = _mm256_add_pd(matValues, scal);
 
             // store results back into memory
-            _mm256_store_pd(&m->Data[row * m->memCols + col], results);
+            _mm256_store_pd(&m->Data[row * m->Cols + col], results);
         }
     }
 }
@@ -28,13 +28,13 @@ void multScalar(Mat *m, double scalar)
         for (size_t col = 0; col < m->Cols; col += 4)
         {
             // load data into AVX register
-            matValues = _mm256_load_pd(&m->Data[row * m->memCols + col]);
+            matValues = _mm256_loadu_pd(&m->Data[row * m->Cols + col]);
 
             // compute multiplication of 4 elements
             results = _mm256_mul_pd(matValues, scal);
 
             // store results back into memory
-            _mm256_store_pd(&m->Data[row * m->memCols + col], results);
+            _mm256_store_pd(&m->Data[row * m->Cols + col], results);
         }
     }
 }
@@ -45,17 +45,11 @@ double sumElements(Mat *m)
 
     for (size_t row = 0; row < m->Rows; row++)
     {
-        // set garbage elements to 0
-        size_t numGarbageElems = m->memCols - m->Cols;
-        for (size_t col = m->memCols-1; col >= m->memCols-numGarbageElems; col++)
-            m->Data[row * m->memCols + col] = 0.0;
-        
-
         // do all but last set of 4 element per row
         for (size_t col = 0; col < m->Cols; col += 4)
         {
             // load data into AVX register
-            matValues = _mm256_load_pd(&m->Data[row * m->memCols + col]);
+            matValues = _mm256_loadu_pd(&m->Data[row * m->Cols + col]);
 
             // sum elements
             sums = _mm256_add_pd(sums, matValues);
@@ -76,11 +70,60 @@ double sumElements(Mat *m)
 
 Mat sumCols(Mat *m)
 {
+    Mat result = zeroes(m->Rows, 1);
+    register __m256d matValues, sums;
+    double *convertedReg = (double*)aligned_alloc(32, 4 * sizeof(double));
 
+    for (size_t row = 0; row < m->Rows; row++)
+    {
+        // set line sum to 0
+        sums = _mm256_setzero_pd();
+
+        for (size_t col = 0; col < m->Cols; col += 4)
+        {
+            // load data into AVX register
+            matValues = _mm256_loadu_pd(&m->Data[row * m->Cols + col]);
+
+            // sum elements
+            sums = _mm256_add_pd(sums, matValues);
+        }
+
+        // sum the elements inside the avx register "sums"
+        _mm256_store_pd(convertedReg, sums);
+
+        for (size_t i = 0; i < 4; i++)
+            result.Data[row * result.Cols] += convertedReg[i];
+    }
+
+    free(convertedReg);
+
+    return result;
 }
 Mat sumRows(Mat *m)
 {
+    Mat result = zeroes(1, m->Cols);
+    register __m256d matValues, sums;
+    double *convertedReg = (double*)aligned_alloc(32, 4 * sizeof(double));
 
+    for (size_t col = 0; col < m->Cols; col += 4)
+    {
+        // sum 4 rows at a time
+        for (size_t row = 0; row < m->Rows-4; row++)
+        {
+            matValues = _mm256_loadu_pd(&m->Data[row * m->Cols + col]);
+            sums = _mm256_add_pd(sums, matValues);
+        }
+
+        if (col < m->Cols-4)
+            _mm256_store_pd(&result.Data[col], sums);
+        else
+        {
+            // THIS
+        }
+    }
+    
+
+    return result;
 }
 
 void sumMat(Mat *inOut, Mat *b)

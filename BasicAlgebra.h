@@ -12,7 +12,6 @@ typedef struct
     double * Data;
     size_t Rows;
     size_t Cols;
-    size_t memCols;    // number of cols including  alignment placeholders
 } Mat;
 
 Mat zeroes(size_t rows, size_t cols);
@@ -32,7 +31,6 @@ void set(Mat *m, size_t row, size_t col, double d);
 void freeMat(Mat *m);
 
 void printMat(Mat *m);
-void printMatDEBUG(Mat *m);
 
 bool equalSize(Mat *a, Mat *b);
 
