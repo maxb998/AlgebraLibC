@@ -32,7 +32,7 @@ void set(Mat *m, size_t row, size_t col, double d);
 void freeMat(Mat *m);
 
 void printMat(Mat *m);
-void printMat(Mat *m);
+void printMatDEBUG(Mat *m);
 
 bool equalSize(Mat *a, Mat *b);
 

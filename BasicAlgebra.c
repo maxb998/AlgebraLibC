@@ -62,13 +62,15 @@ double sumElements(Mat *m)
         }
     }
 
-    double convertedReg[4];
+    double *convertedReg = (double*)aligned_alloc(32, 4 * sizeof(double));
     _mm256_store_pd(convertedReg, sums);
 
     double result = 0.0;
     for (size_t i = 0; i < 4; i++)
         result += convertedReg[i];
     
+    free(convertedReg);
+
     return result;
 }
 

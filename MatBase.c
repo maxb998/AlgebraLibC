@@ -9,7 +9,10 @@ Mat blankInit(size_t rows, size_t cols)
     m.Rows = rows;
     m.Cols = cols;
     
-    m.memCols = cols + (4 - (cols % 4));
+    if (cols % 4 == 0)
+        m.memCols = cols;
+    else
+        m.memCols = cols + (4 - (cols % 4));
 
     // allocate the memory(aligned so avx are happy)
     m.Data = (double*)aligned_alloc(32, m.Rows * m.memCols * sizeof(double));
@@ -89,7 +92,7 @@ Mat loadMat(const char * csvPath)
     Mat m = blankInit(nRows, nCols);
 
     // start parsing the file and filling the array with the data
-    char * letterNumber = (char*)malloc(40U);    // don't think doubleing point number in a text document takes more than 40 character
+    char * letterNumber = (char*)malloc(40U);    // don't think double point number in a text document takes more than 40 character
     size_t row = 0, col = 0, numSize = 0;
     for (c = getc(f); (c != EOF); c = getc(f))
     {
@@ -178,7 +181,7 @@ void printMat(Mat *m)
     printf("\n");
 }
 
-void printMatAVX(Mat *m)
+void printMatDEBUG(Mat *m)
 {
     printf("\n");
     for (size_t row = 0; row < m->Rows; row++)

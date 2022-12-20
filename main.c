@@ -2,37 +2,46 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdio.h>
+#include <unistd.h>
 
 #include "BasicAlgebra.h"
 
 int main(int argc, char const *argv[])
 {
-    Mat a = zeroes(4,8);
+    // arguments check
+    if (argc != 3)
+    {
+        printf("Wrong arguments: ./main <PATH_TO_MATRIX_A> <PATH_TO_MATRIX_B>\n");
+        exit(EXIT_FAILURE);
+    }
+    // check if matrices files exist
+    if (access(argv[1], F_OK) != 0)
+    {
+        printf("ERROR: Matrix A does not exist\n");
+        exit(EXIT_FAILURE);
+    }
+    if (access(argv[2], F_OK) != 0)
+    {
+        printf("ERROR: Matrix B does not exist\n");
+        exit(EXIT_FAILURE);
+    }
+    
 
-    printf("\n a = ");
+    Mat a = loadMat(argv[1]);
     printMat(&a);
+    double sum = sumElements(&a);
+    printf("The sum of all elements of A is: %.2f\n", sum);
 
-    double d = 1.36;
-    addScalarSeq(&a, d);
-    printf("\n a + %.2f = ", d);
-    printMat(&a);
+    Mat b = loadMat(argv[2]);
+    //printMat(&b);
 
-    double sum = sumElementsSeq(&a);
-    double calculatedSum = d*4.*8.;
-    printf("\nComputed sum = %.2f \n", sum);
-    printf("    True sum = %.2f", calculatedSum);
-
-    d = 10.0;
-    multScalarSeq(&a, d);
-    printf("\n a * %.2f = ", d);
-    printMat(&a);
-
-    sum = sumElementsSeq(&a);
-    calculatedSum *= 10.;
-    printf("\nComputed sum = %.2f \n", sum);
-    printf("    True sum = %.2f", calculatedSum);
+    Mat c = cloneMat(&a);
+    multScalar(&c, 10.0);
+    printMat(&c);
 
     freeMat(&a);
+    freeMat(&b);
+    freeMat(&c);
 
-    return 0;
+    return EXIT_SUCCESS;
 }
