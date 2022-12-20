@@ -1,6 +1,6 @@
 #include "BasicAlgebra.h"
 
-void addScalarAVX(Mat *m, double scalar)
+void addScalar(Mat *m, double scalar)
 {
     register __m256d matValues, results, scal = _mm256_set1_pd(scalar);
 
@@ -19,7 +19,7 @@ void addScalarAVX(Mat *m, double scalar)
         }
     }
 }
-void multScalarAVX(Mat *m, double scalar)
+void multScalar(Mat *m, double scalar)
 {
     register __m256d matValues, results, scal = _mm256_set1_pd(scalar);
 
@@ -39,7 +39,7 @@ void multScalarAVX(Mat *m, double scalar)
     }
 }
 
-double sumElementsAVX(Mat *m)
+double sumElements(Mat *m)
 {
     register __m256d matValues, sums = _mm256_setzero_pd();
 
@@ -72,25 +72,25 @@ double sumElementsAVX(Mat *m)
     return result;
 }
 
-Mat sumColsAVX(Mat *m)
+Mat sumCols(Mat *m)
 {
 
 }
-Mat sumRowsAVX(Mat *m)
-{
-
-}
-
-void sumMatAVX(Mat *inOut, Mat *b)
-{
-
-}
-Mat sumMatsAVX(Mat *a, Mat *b)
+Mat sumRows(Mat *m)
 {
 
 }
 
-Mat productAVX(Mat *a, Mat *b)
+void sumMat(Mat *inOut, Mat *b)
+{
+
+}
+Mat sumMats(Mat *a, Mat *b)
+{
+
+}
+
+Mat product(Mat *a, Mat *b)
 {
 
 }

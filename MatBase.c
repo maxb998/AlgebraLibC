@@ -1,6 +1,5 @@
 #include "BasicAlgebra.h"
 
-const bool useAvx = true;
 Mat blankInit(size_t rows, size_t cols);
 
 Mat blankInit(size_t rows, size_t cols)
@@ -9,10 +8,8 @@ Mat blankInit(size_t rows, size_t cols)
     Mat m;
     m.Rows = rows;
     m.Cols = cols;
-    if (useAvx)
-        m.memCols = cols + (4 - (cols % 4));
-    else
-        m.memCols = cols;
+    
+    m.memCols = cols + (4 - (cols % 4));
 
     // allocate the memory(aligned so avx are happy)
     m.Data = (double*)aligned_alloc(32, m.Rows * m.memCols * sizeof(double));
