@@ -39,8 +39,8 @@ bool equalSize(Mat *a, Mat *b);
 
 
 
-#ifndef BASIC_ALGEBRA_SEQUENTIAL
-#define BASIC_ALGEBRA_SEQUENTIAL
+#ifndef BASIC_ALGEBRA
+#define BASIC_ALGEBRA
 
 void addScalarSeq(Mat *m, double scalar);
 void multScalarSeq(Mat *m, double scalar);
@@ -55,47 +55,4 @@ Mat sumMatsSeq(Mat *a, Mat *b);
 
 Mat productSeq(Mat *a, Mat *b);
 
-#endif //BASIC_ALGEBRA_SEQUENTIAL
-
-
-
-#ifndef BASIC_ALGEBRA_AVX
-#define BASIC_ALGEBRA_AVX
-
-#include <immintrin.h>
-
-void addScalarAVX(Mat *m, double scalar);
-void multScalarAVX(Mat *m, double scalar);
-
-double sumElementsAVX(Mat *m);
-
-Mat sumColsAVX(Mat *m);
-Mat sumRowsAVX(Mat *m);
-
-void sumMatAVX(Mat *inOut, Mat *b);
-Mat sumMatsAVX(Mat *a, Mat *b);
-
-Mat productAVX(Mat *a, Mat *b);
-
-#endif //BASIC_ALGEBRA_AVX
-
-
-
-#ifndef BASIC_ALGEBRA_MULTICORE
-#define BASIC_ALGEBRA_MULTICORE
-
-
-
-#endif //BASIC_ALGEBRA_MULTICORE
-
-
-
-#ifndef BASIC_ALGEBRA_MULTICORE_AVX
-#define BASIC_ALGEBRA_MULTICORE_AVX
-
-
-
-#endif //BASIC_ALGEBRA_MULTICORE_AVX
-
-
-// vulkan gpu next?
+#endif //BASIC_ALGEBRA

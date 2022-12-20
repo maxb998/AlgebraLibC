@@ -20,7 +20,7 @@ int main(int argc, char const *argv[])
     double sum = sumElementsSeq(&a);
     double calculatedSum = d*4.*8.;
     printf("\nComputed sum = %.2f \n", sum);
-    printf("    True sum = %.2f", calculatedSum);
+    printf("True sum = %.2f \n", calculatedSum);
 
     d = 10.0;
     multScalarSeq(&a, d);
@@ -30,7 +30,7 @@ int main(int argc, char const *argv[])
     sum = sumElementsSeq(&a);
     calculatedSum *= 10.;
     printf("\nComputed sum = %.2f \n", sum);
-    printf("    True sum = %.2f", calculatedSum);
+    printf("True sum = %.2f \n", calculatedSum);
 
     freeMat(&a);
 

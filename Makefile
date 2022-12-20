@@ -1,6 +1,6 @@
 
-all: main.o MatBase.o AlgebraSequential.o AlgebraAVX.o
-	gcc main.o MatBase.o AlgebraSequential.o AlgebraAVX.o -o main
+all: main.o MatBase.o BasicAlgebra.o
+	gcc main.o MatBase.o BasicAlgebra.o -o main
 
 main.o: main.c
 	gcc -c main.c
@@ -8,11 +8,9 @@ main.o: main.c
 MatBase.o: MatBase.c
 	gcc -c MatBase.c
 
-AlgebraSequential.o: AlgebraSequential.c
-	gcc -c AlgebraSequential.c 
-
-AlgebraAVX.o: AlgebraAVX.c
-	gcc -c -mavx2 AlgebraAVX.c
+BasicAlgebra.o: BasicAlgebra.c
+	gcc -c BasicAlgebra.c
 
 clean: 
 	rm *.o main
+
