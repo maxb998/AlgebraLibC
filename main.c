@@ -24,20 +24,24 @@ int main(int argc, char const *argv[])
     {
         printf("ERROR: Matrix B does not exist\n");
         exit(EXIT_FAILURE);
-    }
-    
+    } 
 
+    
     Mat a = loadMat(argv[1]);
     printMat(&a);
+    double sum = sumElements(&a);
+    printf("The sum of all elements of A is: %.2f\n", sum);
 
     Mat b = loadMat(argv[2]);
+    Mat bt = transpose(&b);
     printMat(&b);
 
-    Mat c = mult(&a, &b);
+    Mat c = product(&a,&b);
     printMat(&c);
 
     freeMat(&a);
     freeMat(&b);
+    freeMat(&bt);
     freeMat(&c);
 
     return EXIT_SUCCESS;

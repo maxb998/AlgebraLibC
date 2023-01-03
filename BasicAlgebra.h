@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdio.h>
+#include <immintrin.h>
 
 #ifndef MAT_BASE
 #define MAT_BASE
@@ -23,6 +24,8 @@ Mat loadMat(const char * csvPath);
 
 Mat cloneMat(Mat *m);
 
+Mat transpose(Mat *m);
+
 double get(Mat *m, size_t row, size_t col);
 
 void set(Mat *m, size_t row, size_t col, double d);
@@ -34,7 +37,6 @@ void printMat(Mat *m);
 bool equalSize(Mat *a, Mat *b);
 
 #endif //MAT_BASE
-
 
 
 #ifndef BASIC_ALGEBRA
@@ -51,7 +53,6 @@ Mat sumRows(Mat *m);
 void sumMat(Mat *inOut, Mat *b);
 Mat sumMats(Mat *a, Mat *b);
 
-// return the dot product a*b
-Mat mult(Mat *a, Mat *b);
+Mat product(Mat *a, Mat *b);
 
-#endif //BASIC_ALGEBRA
+#endif //BASIC_ALGEBRA_

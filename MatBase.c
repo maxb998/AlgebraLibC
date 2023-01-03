@@ -9,8 +9,15 @@ Mat blankInit(size_t rows, size_t cols)
     m.Rows = rows;
     m.Cols = cols;
 
+    // compute needed mem size in doubles
+    size_t size = m.Rows * m.Cols;
+
+    // allocate some extra memory if needed to avoid reading not allocated memory when loading avx reg at the last positions
+    if (size % 4 != 0)
+        size += 4 - size % 4;
+
     // allocate the memory
-    m.Data = (double*)malloc(m.Rows * m.Cols * sizeof(double));
+    m.Data = (double*)malloc(size * sizeof(double));
 
     return m;
 }
@@ -80,10 +87,10 @@ Mat loadMat(const char * csvPath)
     rewind(f);
 
     // generate (empty)data structure and attributes
-    Mat m = blankInit(nRows, nCols);
+    Mat m = zeroes(nRows, nCols);
 
     // start parsing the file and filling the array with the data
-    char * letterNumber = (char*)malloc(40U);    // don't think doubleing point number in a text document takes more than 40 character
+    char * letterNumber = (char*)malloc(40U);    // don't think double point number in a text document takes more than 40 character
     size_t row = 0, col = 0, numSize = 0;
     for (c = getc(f); (c != EOF); c = getc(f))
     {
@@ -121,11 +128,22 @@ Mat loadMat(const char * csvPath)
 
 Mat cloneMat(Mat *m)
 {
-    Mat cloned = blankInit(m->Rows, m->Cols);
+    Mat cloned = zeroes(m->Rows, m->Cols);
 
     memcpy(cloned.Data, m->Data, (m->Rows * m->Cols * sizeof(double)));
 
     return cloned;
+}
+
+Mat transpose(Mat *m)
+{
+    Mat res = blankInit(m->Cols, m->Rows);
+
+    for (size_t row = 0; row < res.Rows; row++)
+        for (size_t col = 0; col < res.Cols; col++)
+            res.Data[row * res.Cols + col] = m->Data[col * m->Cols + row];
+
+    return res;
 }
 
 double get(Mat *m, size_t row, size_t col)

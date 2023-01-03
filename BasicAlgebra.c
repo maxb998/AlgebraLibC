@@ -84,7 +84,7 @@ Mat sumMats(Mat *a, Mat *b)
     return ac;
 }
 
-Mat mult(Mat *a, Mat *b)
+Mat product(Mat *a, Mat *b)
 {
     // check sizes for compatibility
     if (a->Cols != b->Rows)
