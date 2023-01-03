@@ -33,14 +33,15 @@ int main(int argc, char const *argv[])
     printf("The sum of all elements of A is: %.2f\n", sum);
 
     Mat b = loadMat(argv[2]);
-    //printMat(&b);
+    Mat bt = transpose(&b);
+    printMat(&b);
 
-    Mat c = cloneMat(&a);
-    multScalar(&c, 10.0);
+    Mat c = product(&a,&b);
     printMat(&c);
 
     freeMat(&a);
     freeMat(&b);
+    freeMat(&bt);
     freeMat(&c);
 
     return EXIT_SUCCESS;

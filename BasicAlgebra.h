@@ -24,6 +24,8 @@ Mat loadMat(const char * csvPath);
 
 Mat cloneMat(Mat *m);
 
+Mat transpose(Mat *m);
+
 double get(Mat *m, size_t row, size_t col);
 
 void set(Mat *m, size_t row, size_t col, double d);

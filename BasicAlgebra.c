@@ -103,7 +103,6 @@ Mat sumRows(Mat *m)
 {
     Mat result = zeroes(1, m->Cols);
     register __m256d matValues, sums;
-    double *convertedReg = (double*)aligned_alloc(32, 4 * sizeof(double));
 
     for (size_t col = 0; col < m->Cols; col += 4)
     {
@@ -114,28 +113,108 @@ Mat sumRows(Mat *m)
             sums = _mm256_add_pd(sums, matValues);
         }
 
-        if (col < m->Cols-4)
-            _mm256_store_pd(&result.Data[col], sums);
-        else
-        {
-            // THIS
-        }
+        // store in new mat
+        _mm256_store_pd(&result.Data[col], sums);
     }
-    
 
     return result;
 }
 
 void sumMat(Mat *inOut, Mat *b)
 {
+    if (!equalSize(inOut, b))
+    {
+        printf("ERROR sumMat: Matrices do not have the same size\n");
+        exit(EXIT_FAILURE);
+    }
 
+    register __m256d matValA, matValB;
+
+    for (size_t i = 0; i < b->Cols * b->Rows; i += 4)
+    {
+        // load data
+        matValA = _mm256_loadu_pd(&inOut->Data[i]);
+        matValB = _mm256_loadu_pd(&b->Data[i]);
+
+        // sum
+        matValA = _mm256_add_pd(matValA, matValB);
+
+        // store the results
+        _mm256_storeu_pd(&inOut->Data[i], matValA);
+    }
 }
 Mat sumMats(Mat *a, Mat *b)
 {
+    if (!equalSize(a, b))
+    {
+        printf("ERROR sumMat: Matrices do not have the same size\n");
+        exit(EXIT_FAILURE);
+    }
 
+    Mat m = zeroes(a->Rows, a->Cols);
+    register __m256d matValA, matValB;
+
+    for (size_t i = 0; i < b->Cols * b->Rows; i += 4)
+    {
+        // load data
+        matValA = _mm256_loadu_pd(&a->Data[i]);
+        matValB = _mm256_loadu_pd(&b->Data[i]);
+
+        // sum
+        matValA = _mm256_add_pd(matValA, matValB);
+
+        // store the results
+        _mm256_storeu_pd(&m.Data[i], matValA);
+    }
+
+    return m;
 }
 
 Mat product(Mat *a, Mat *b)
 {
+    if (a->Cols != b->Rows)
+    {
+        printf("ERROR product: Matrices sizes are incompatible\n");
+        exit(EXIT_FAILURE);
+    }
+    
+    Mat result = zeroes(a->Rows, b->Cols);
+    __m256d aVals, bVals, sums;
+    size_t dim = a->Cols, p, dimSeq = dim - dim % 4;
+    double *sumsMem = aligned_alloc(32, 4 * sizeof(double));
 
+    for (size_t row = 0; row < result.Rows; row++)
+    {
+        for (size_t col = 0; col < result.Cols; col++)
+        {
+            // rest sums for the next value in [row,col] posiition
+            sums = _mm256_setzero_pd();
+
+            for (size_t i = 0; i < dim - dim%4; i += 4)
+            {
+                aVals = _mm256_loadu_pd(&a->Data[row * a->Cols + i]);
+                p = b->Cols * i + col;
+                bVals = _mm256_setr_pd(b->Data[p], b->Data[p + b->Cols], b->Data[p + b->Cols * 2], b->Data[p + b->Cols * 3]);
+
+                aVals = _mm256_mul_pd(aVals, bVals);
+                sums = _mm256_add_pd(sums, aVals);
+            }
+
+            // cross sum to spare time
+            sums = _mm256_hadd_pd(sums, sums);
+            
+            _mm256_store_pd(sumsMem, sums);
+
+            // sequential sum the rest
+            result.Data[row * result.Cols + col] = sumsMem[0] + sumsMem[2];
+
+            // if the dimensions aren't optimal for the avx instructions load and to prevent entering forbidden memory spaces
+            for (size_t i = 0; i < dim % 4; i++)
+                result.Data[row * result.Cols + col] += a->Data[(dimSeq + i) + row * dim] * b->Data[(dimSeq + i) * dim + col];
+        }
+    }
+
+    free(sumsMem);
+
+    return result;
 }

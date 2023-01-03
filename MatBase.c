@@ -9,8 +9,15 @@ Mat blankInit(size_t rows, size_t cols)
     m.Rows = rows;
     m.Cols = cols;
 
-    // allocate the memory(aligned so avx are happy)
-    m.Data = (double*)malloc(m.Rows * m.Cols * sizeof(double));
+    // compute needed mem size in doubles
+    size_t size = m.Rows * m.Cols;
+
+    // allocate some extra memory if needed to avoid reading not allocated memory when loading avx reg at the last positions
+    if (size % 4 != 0)
+        size += 4 - size % 4;
+
+    // allocate the memory
+    m.Data = (double*)malloc(size * sizeof(double));
 
     return m;
 }
@@ -126,6 +133,17 @@ Mat cloneMat(Mat *m)
     memcpy(cloned.Data, m->Data, (m->Rows * m->Cols * sizeof(double)));
 
     return cloned;
+}
+
+Mat transpose(Mat *m)
+{
+    Mat res = blankInit(m->Cols, m->Rows);
+
+    for (size_t row = 0; row < res.Rows; row++)
+        for (size_t col = 0; col < res.Cols; col++)
+            res.Data[row * res.Cols + col] = m->Data[col * m->Cols + row];
+
+    return res;
 }
 
 double get(Mat *m, size_t row, size_t col)
