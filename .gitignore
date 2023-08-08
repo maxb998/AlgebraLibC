@@ -1,2 +1,5 @@
-*.o
-main
+bin/debug/main
+bin/exec/main
+
+obj/debug/*.o
+obj/exec/*.o
